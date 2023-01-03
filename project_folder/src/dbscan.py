@@ -22,15 +22,18 @@ df['z'] = np.sin(df['latitude_rad']) # z = r * sin(lat)
 # Create a matrix of the x, y, and z coordinates
 X = df[['x', 'y', 'z']].values
 
+print(f'The shape of the matrix is: {X.shape}')
 # Scale the data to have a mean of 0 and a standard deviation of 1
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
+print(f'Calculating the distance matrix...')
 # Calculate the condensed distance matrix
 distances = pdist(X_scaled)
 
 # Calculate the distance to the kth nearest neighbor for each point
 k = 5
+print(f'Calculating the distance to the {k}th nearest neighbor for each point...')
 neigh = NearestNeighbors(n_neighbors=k)
 nbrs = neigh.fit(X_scaled)
 distances_k, indices_k = nbrs.kneighbors(X_scaled)
