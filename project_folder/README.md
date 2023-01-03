@@ -63,6 +63,70 @@ We can use the sklearn.metrics.calinski_harabasz_score function to calculate the
 
 The Calinski-Harabasz score is a measure of how well the clusters are separated from each other and how well they contain their own points. The Calinski-Harabasz score ranges from 0 to infinity, where a score close to infinity indicates well-separated clusters.
 
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import DBSCAN
+from sklearn.metrics import silhouette_score, calinski_harabasz_score
+from sklearn.neighbors import NearestNeighbors
+from sklearn.preprocessing import StandardScaler
+from scipy.spatial.distance import pdist, squareform
+
+# Read in the data
+df = pd.read_csv("data.csv")
+
+# Convert the latitude and longitude to radians
+df['latitude_rad'] = np.radians(df['latitude'])
+df['longitude_rad'] = np.radians(df['longitude'])
+
+# Convert the latitude and longitude to cartesian coordinates
+df['x'] = np.cos(df['latitude_rad']) * np.cos(df['longitude_rad'])
+df['y'] = np.cos(df['latitude_rad']) * np.sin(df['longitude_rad'])
+df['z'] = np.sin(df['latitude_rad'])
+
+# Create a matrix of the x, y, and z coordinates
+X = df[['x', 'y', 'z']].values
+
+# Scale the data
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Calculate the condensed distance matrix
+distances = pdist(X_scaled)
+
+# Calculate the distance to the kth nearest neighbor
+k = 2
+neigh = NearestNeighbors(n_neighbors=k)
+nbrs = neigh.fit(X_scaled)
+distances_k, indices_k = nbrs.kneighbors(X_scaled)
+distances_k = distances_k[:, k-1]
+
+# Plot a histogram of the distances to the kth nearest neighbor
+plt.hist(distances_k, bins=50)
+plt.xlabel('Distance')
+plt.ylabel('Frequency')
+plt.show()
+
+# Choose a value for eps
+eps = 0.5
+
+# Run the DBSCAN algorithm
+db = DBSCAN(eps=eps, min_samples=2, metric='precomputed')
+db.fit(squareform(distances))
+
+# Calculate the silhouette score
+score = silhouette_score(squareform(distances), db.labels_)
+
+# Calculate the Calinski-Harabasz score
+score = calinski_harabasz_score(squareform(distances), db.labels_)
+
+# Print the cluster labels
+print(db.labels_)
+```
+
+
+
 # Step 5 - Running the DBSCAN algorithm
 
 Run the DBSCAN algorithm on the preprocessed data, using the distance measure and eps value that you selected. This will generate clusters of points that are considered to be "similar" based on the distance measure and eps value. The DBSCAN algorithm will assign a cluster label to each point in the data, where points that are not part of any cluster will be given the label -1. The DBSCAN algorithm will also assign each point to either a core point or a border point, where core points are points with sufficient neighbors to be considered part of a cluster and border points are points that are not core points but are neighbors of a core point. The DBSCAN algorithm will also assign each point to either a noise point or a non-noise point, where noise points are points that are not part of any cluster and non-noise points are points that are part of a cluster. The DBSCAN algorithm will also assign each point to either a direct core point or an indirect core point, where direct core points are points that are core points and indirect core points are points that are not core points but are neighbors of a core point.
