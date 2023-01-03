@@ -2,3 +2,4 @@ secrets.json
 *.npy
 *.csv
 project_folder/data/processed/ufos_processed.csv
+project_folder/data/processed/ufos_processed.csv
