@@ -74,7 +74,7 @@ from sklearn.preprocessing import StandardScaler
 from scipy.spatial.distance import pdist, squareform
 
 # Read in the data
-df = pd.read_csv("data.csv")
+df = pd.read_csv("../project_folder/data/processed/ufos_processed.csv", low_memory=False, on_bad_lines= 'skip')
 
 # Convert the latitude and longitude to radians
 df['latitude_rad'] = np.radians(df['latitude'])
